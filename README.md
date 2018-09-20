@@ -20,7 +20,7 @@ Usage
 ---
 
 ```php
-$handler = $fopen('path/to/some/file.txt');
+$handler = fopen('path/to/some/file.txt');
 $stream = new LineOutputStream($handler);
 
 $iterator = new \ArrayIterator(['hello, 'sweet', 'world']);
@@ -29,6 +29,14 @@ $stream->write($iterator);
 ```
 
 All stream objects take a stream resource as first parameter of the constructor.
+
+To use it with a [PSR-7 streams](https://www.php-fig.org/psr/psr-7/#13-streams), you need to detach the underlying
+resource and pass it to constructor.
+
+```php
+$handler = $psr7stream->detach();
+$stream = new LineOutputStream($handler);
+```
 
 Streams
 ---

@@ -50,7 +50,7 @@ class JsonOutputStream extends AbstractOutputStream
             return;
         }
 
-        fwrite($this->stream, "[");
+        fwrite($this->stream, "["  . "\n");
     }
 
     /**
@@ -64,7 +64,7 @@ class JsonOutputStream extends AbstractOutputStream
             return;
         }
 
-        fwrite($this->stream, "\n" . ']');
+        fwrite($this->stream, (isset($this->delimiter) ? "\n" : '') . ']');
     }
 
     /**
@@ -78,8 +78,8 @@ class JsonOutputStream extends AbstractOutputStream
         $json = json_encode($element, $this->options);
 
         if ($json === false) {
-            trigger_error(json_last_error_msg(), E_USER_WARNING);
-            return '"!!! error !!!"';
+            trigger_error("JSON encode failed; " . json_last_error_msg(), E_USER_WARNING);
+            return json_encode(null);
         }
 
         // Indent for pretty print
@@ -100,10 +100,10 @@ class JsonOutputStream extends AbstractOutputStream
     {
         $json = $this->jsonEncode($element);
 
-        fwrite($this->stream, $this->delimiter . "\n" . $json);
+        fwrite($this->stream, $this->delimiter . $json);
 
         if (!isset($this->delimiter)) {
-            $this->delimiter = $this->options & self::OUTPUT_LINES ? '' : ',';
+            $this->delimiter = ($this->options & self::OUTPUT_LINES ? '' : ',') . "\n";
         }
     }
 }

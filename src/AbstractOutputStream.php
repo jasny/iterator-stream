@@ -12,7 +12,7 @@ use function Jasny\expect_type;
 abstract class AbstractOutputStream implements OutputStreamInterface
 {
     /**
-     * @var resource
+     * @var resource|null
      */
     protected $stream;
 

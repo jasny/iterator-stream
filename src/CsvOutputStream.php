@@ -72,7 +72,7 @@ class CsvOutputStream extends AbstractOutputStream
     /**
      * Write an element to the stream.
      *
-     * @param array $element
+     * @param string[]|mixed $element
      * @return void
      */
     protected function writeElement($element): void

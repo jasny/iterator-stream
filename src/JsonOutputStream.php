@@ -46,11 +46,9 @@ class JsonOutputStream extends AbstractOutputStream
      */
     protected function begin(): void
     {
-        if ($this->options & self::OUTPUT_LINES) {
-            return;
+        if (($this->options & self::OUTPUT_LINES) === 0) {
+            fwrite($this->stream, "["  . "\n");
         }
-
-        fwrite($this->stream, "["  . "\n");
     }
 
     /**
@@ -60,11 +58,9 @@ class JsonOutputStream extends AbstractOutputStream
      */
     protected function end(): void
     {
-        if ($this->options & self::OUTPUT_LINES) {
-            return;
+        if (($this->options & self::OUTPUT_LINES) === 0) {
+            fwrite($this->stream, (isset($this->delimiter) ? "\n" : '') . ']');
         }
-
-        fwrite($this->stream, (isset($this->delimiter) ? "\n" : '') . ']');
     }
 
     /**
@@ -83,7 +79,7 @@ class JsonOutputStream extends AbstractOutputStream
         }
 
         // Indent for pretty print
-        if ($this->options & \JSON_PRETTY_PRINT && ~$this->options & self::OUTPUT_LINES) {
+        if (($this->options & \JSON_PRETTY_PRINT) > 0 && (~$this->options & self::OUTPUT_LINES) > 0) {
             $json = rtrim("    " . str_replace("\n", "\n    ", $json));
         }
 
@@ -103,7 +99,7 @@ class JsonOutputStream extends AbstractOutputStream
         fwrite($this->stream, $this->delimiter . $json);
 
         if (!isset($this->delimiter)) {
-            $this->delimiter = ($this->options & self::OUTPUT_LINES ? '' : ',') . "\n";
+            $this->delimiter = (($this->options & self::OUTPUT_LINES) > 0 ? '' : ',') . "\n";
         }
     }
 }

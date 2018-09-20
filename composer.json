@@ -19,6 +19,7 @@
         "jasny/php-functions": "^4.0"
     },
     "require-dev": {
+        "ext-gd": "*",
         "jasny/php-code-quality": "^2.3"
     },
     "autoload": {

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jasny\IteratorStream;
 
+use function Jasny\expect_type;
+
 /**
  * Baste class for output stream
  */
@@ -41,15 +43,17 @@ abstract class AbstractOutputStream implements OutputStreamInterface
      */
     protected function assertStreamResource($resource): void
     {
+        expect_type($resource, 'resource', \InvalidArgumentException::class);
+
         if (get_resource_type($resource) !== 'stream') {
-            $type = (is_object($resource) ? get_class($resource) . ' ' : '') . gettype($resource);
+            $type = get_resource_type($resource) . ' resource';
             throw new \InvalidArgumentException("Expected resource to be a stream, $type given");
         }
 
         $meta = stream_get_meta_data($resource);
 
         if ($meta['mode'] === 'r') {
-            throw new \InvalidArgumentException("Stream is not writable");
+            throw new \InvalidArgumentException("Stream \"{$meta['uri']}\" is not writable");
         }
     }
 
@@ -57,12 +61,16 @@ abstract class AbstractOutputStream implements OutputStreamInterface
      * Assert that a stream is attached.
      *
      * @return void
-     * @throws \LogicException
+     * @throws \BadMethodCallException
      */
     protected function assertAttached(): void
     {
         if (!isset($this->stream)) {
-            throw new \LogicException("Stream is not attached");
+            throw new \BadMethodCallException("Stream is not attached");
+        }
+
+        if (!is_resource($this->stream)) {
+            throw new \RuntimeException("Stream has closed unexpectedly");
         }
     }
 

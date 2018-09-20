@@ -63,7 +63,9 @@ class CsvOutputStream extends AbstractOutputStream
      */
     protected function begin(): void
     {
-        fputcsv($this->stream, $this->headers, $this->delimiter, $this->enclosure, $this->escapeChar);
+        if (isset($this->headers)) {
+            fputcsv($this->stream, $this->headers, $this->delimiter, $this->enclosure, $this->escapeChar);
+        }
     }
 
 
@@ -77,7 +79,11 @@ class CsvOutputStream extends AbstractOutputStream
     {
         if (!is_array($element)) {
             $type = (is_object($element) ? get_class($element) . ' ' : '') . gettype($element);
-            trigger_error("Unable to write to element to CSV stream; expect array, got $type", E_USER_WARNING);
+            trigger_error("Unable to write to element to CSV stream; expect array, $type given", E_USER_WARNING);
+
+            fwrite($this->stream, "\n");
+
+            return;
         }
 
         fputcsv($this->stream, $element, $this->delimiter, $this->enclosure, $this->escapeChar);

@@ -17,11 +17,11 @@ class AbstractOutputStreamTest extends TestCase
         fclose($closed);
 
         return [
-            ['foo', "Expected resource, string given"],
-            [new \DateTime(), "Expected resource, DateTime object given"],
-            [imagecreate(1, 1), "Expected resource to be a stream, gd resource given"],
+            ['foo', "Expected stream resource, string given"],
+            [new \DateTime(), "Expected stream resource, DateTime object given"],
+            [imagecreate(1, 1), "Expected stream resource, gd resource given"],
             [fopen('data://text/plain,hello', 'r'), 'Stream "data://text/plain,hello" is not writable'],
-            [$closed, "Expected resource, unknown type given"]
+            [$closed, "Expected stream resource, resource (closed) given"]
         ];
     }
 

@@ -16,7 +16,7 @@
     },
     "require": {
         "php": ">=7.1.0",
-        "jasny/php-functions": "^4.0"
+        "jasny/php-functions": "^4.1"
     },
     "require-dev": {
         "ext-gd": "*",

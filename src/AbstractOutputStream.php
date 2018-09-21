@@ -43,12 +43,7 @@ abstract class AbstractOutputStream implements OutputStreamInterface
      */
     protected function assertStreamResource($resource): void
     {
-        expect_type($resource, 'resource', \InvalidArgumentException::class);
-
-        if (get_resource_type($resource) !== 'stream') {
-            $type = get_resource_type($resource) . ' resource';
-            throw new \InvalidArgumentException("Expected resource to be a stream, $type given");
-        }
+        expect_type($resource, 'stream resource', \InvalidArgumentException::class);
 
         $meta = stream_get_meta_data($resource);
 

@@ -50,7 +50,7 @@ Streams
 Write to a stream line by line.
 
 ```php
-LineOutputStream(resource $stream, string $endLine = "\n")
+LineOutputStream(resource $handler, string $endLine = "\n")
 ```
 
 ### CSV
@@ -78,7 +78,7 @@ the jasny\iterator library.
 Write to a stream as JSON array. See [`json_encode`](https://php.net/json_encode).
 
 ```php
-JsonOutputStream(resource $stream, int $options = 0)
+JsonOutputStream(resource $handler, int $options = 0)
 ```
 
 Options may be provided as binary set using the `JSON_*` constants.
@@ -87,5 +87,5 @@ You can add `JsonOutputStream::OUTPUT_LINES` as option, in which case each eleme
 the complete output into a JSON array. 
 
 ```php
-JsonOutputStream(resource $stream, int $options = \JSON_PRETTY_PRINT | JsonOutputStream::OUTPUT_LINES);
+$stream = new JsonOutputStream($handler, \JSON_PRETTY_PRINT | JsonOutputStream::OUTPUT_LINES);
 ```

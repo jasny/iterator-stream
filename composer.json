@@ -1,6 +1,6 @@
 {
     "name": "jasny/iterator-stream",
-    "description": "",
+    "description": "Output streams for iterators, formatting and writing one element at a time",
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -37,9 +37,6 @@
             "phpunit",
             "phpstan analyse",
             "phpcs -p src"
-        ],
-        "post-create-project-cmd": [
-            "bash init.sh && rm init.sh"
         ]
     },
     "config": {

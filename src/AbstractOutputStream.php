@@ -16,10 +16,6 @@ abstract class AbstractOutputStream implements OutputStreamInterface
      */
     protected $stream;
 
-    /**
-     * @var int  binary set
-     */
-    protected $options;
 
     /**
      * AbstractOutputStream constructor.
@@ -28,29 +24,66 @@ abstract class AbstractOutputStream implements OutputStreamInterface
      */
     public function __construct($stream)
     {
-        $this->assertStreamResource($stream);
-
-        $this->stream = $stream;
+        $this->stream = $this->initStream($stream);;
     }
 
 
     /**
-     * Assert that a resource is a writable stream.
+     * Initialize a stream
      *
-     * @param resource $resource
-     * @return void
-     * @throws \InvalidArgumentException
+     * @param resource|string $stream
+     * @return resource
+     * @throws \RuntimeException if stream failed to open
+     * @throws \InvalidArgumentException if stream is not writable
      */
-    protected function assertStreamResource($resource): void
+    protected function initStream($stream)
     {
-        expect_type($resource, 'stream resource', \InvalidArgumentException::class);
+        expect_type($stream, ['stream resource', 'string'], \TypeError::class,
+            "Expected stream resource or uri (string), %s given");
 
-        $meta = stream_get_meta_data($resource);
+        if (is_string($stream)) {
+            $stream = $this->openStream($stream);
+        }
+
+        $meta = stream_get_meta_data($stream);
 
         if ($meta['mode'] === 'r') {
             throw new \InvalidArgumentException("Stream \"{$meta['uri']}\" is not writable");
         }
+
+        return $stream;
     }
+
+    /**
+     * Open a stream
+     *
+     * @param string $uri
+     * @return resource
+     * @throws \RuntimeException if stream failed to open
+     */
+    protected function openStream(string $uri)
+    {
+        $scheme = parse_url($uri, PHP_URL_SCHEME);
+
+        if (!isset($scheme) || $scheme === '') {
+            throw new \InvalidArgumentException("Invalid URI '$uri'; scheme missing");
+        }
+
+        $reporting = error_reporting(error_reporting() & ~(E_WARNING | E_NOTICE));
+        try {
+            $stream = fopen($uri, 'w'); // Just in case stream wrapper throws an exception
+        } finally {
+            error_reporting($reporting);
+        }
+
+        if (!is_resource($stream)) {
+            ['message' => $message] = error_get_last() ?? ['message' => "Failed to open '$uri'"];
+            throw new \RuntimeException($message);
+        }
+
+        return $stream;
+    }
+
 
     /**
      * Assert that a stream is attached.

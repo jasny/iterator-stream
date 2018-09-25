@@ -30,7 +30,15 @@ $stream->write($iterator);
 
 The `write()` takes an array or `Traversable` object (not just `Iterators`). 
 
-All stream objects take a stream resource as first parameter of the constructor.
+All iterator stream objects take a stream resource or URI (string) as first parameter of the constructor.
+
+```php
+new LineOutputStream('php://output');
+new CsvOutputStream('file://path/to/some/file.csv');
+```
+
+If an URI is passed, the iterator stream will open it using `fopen`. Using a scheme is required, also for regular
+files.
 
 To use it with [PSR-7 streams](https://www.php-fig.org/psr/psr-7/#13-streams), you need to detach the underlying
 resource and pass it to constructor.

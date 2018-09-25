@@ -3,6 +3,7 @@
 namespace Jasny\IteratorStream\Tests;
 
 use Jasny\IteratorStream\AbstractOutputStream;
+use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -13,24 +14,27 @@ class AbstractOutputStreamTest extends TestCase
 {
     public function invalidStreamProvider()
     {
+        $gd = imagecreate(1, 1);
+        $readOnly = fopen('data://text/plain,hello', 'r');
+
         $closed = fopen('php://memory', 'w+');
         fclose($closed);
 
         return [
-            ['foo', "Expected stream resource, string given"],
-            [new \DateTime(), "Expected stream resource, DateTime object given"],
-            [imagecreate(1, 1), "Expected stream resource, gd resource given"],
-            [fopen('data://text/plain,hello', 'r'), 'Stream "data://text/plain,hello" is not writable'],
-            [$closed, "Expected stream resource, resource (closed) given"]
+            ['foo', \InvalidArgumentException::class, "Invalid URI 'foo'; scheme missing"],
+            [new \DateTime(), \TypeError::class, "Expected stream resource or uri (string), DateTime object given"],
+            [$gd, \TypeError::class, "Expected stream resource or uri (string), gd resource given"],
+            [$readOnly, \InvalidArgumentException::class, 'Stream "data://text/plain,hello" is not writable'],
+            [$closed, \TypeError::class, "Expected stream resource or uri (string), resource (closed) given"]
         ];
     }
 
     /**
      * @dataProvider invalidStreamProvider
      */
-    public function testInvalidStream($resource, $message)
+    public function testInvalidStream($resource, $exception, $message)
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException($exception);
         $this->expectExceptionMessage($message);
 
         /** @var AbstractOutputStream|MockObject $stream */
@@ -93,5 +97,35 @@ class AbstractOutputStreamTest extends TestCase
 
         fclose($resource);
         $stream->write(new \EmptyIterator());
+    }
+
+
+    public function testOpenStream()
+    {
+        vfsStream::setup();
+
+        /** @var AbstractOutputStream|MockObject $stream */
+        $stream = $this->getMockForAbstractClass(AbstractOutputStream::class, ['vfs://root/test.csv']);
+
+        $handler = $stream->detach();
+        $this->assertInternalType('resource', $handler);
+
+        $this->assertEquals('stream', get_resource_type($handler));
+
+        $meta = stream_get_meta_data($handler);
+        $this->assertEquals('vfs://root/test.csv', $meta['uri']);
+        $this->assertEquals('w', $meta['mode']);
+    }
+
+    /**
+     * @expectedException RuntimeException
+     * @expectedExceptionMessage fopen(vfs://root/foo/test.csv): failed to open stream
+     */
+    public function testOpenStreamFailed()
+    {
+        vfsStream::setup();
+
+        /** @var AbstractOutputStream|MockObject $stream */
+        $this->getMockForAbstractClass(AbstractOutputStream::class, ['vfs://root/foo/test.csv']);
     }
 }

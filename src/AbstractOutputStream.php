@@ -100,10 +100,10 @@ abstract class AbstractOutputStream implements OutputStreamInterface
     /**
      * Write to traversable data to stream.
      *
-     * @param \Traversable $data
+     * @param iterable $data
      * @return void
      */
-    public function write(\Traversable $data): void
+    public function write(iterable $data): void
     {
         $this->assertAttached();
 

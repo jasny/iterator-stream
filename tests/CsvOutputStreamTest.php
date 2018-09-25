@@ -19,13 +19,23 @@ class CsvOutputStreamTest extends TestCase
         ['three', 'qux,\'wuz;dux', 'blue', -20]
     ];
 
-    public function testWrite()
+    public function writeProvider()
+    {
+        return [
+            [$this->values],
+            [new \ArrayIterator($this->values)]
+        ];
+    }
+
+    /**
+     * @dataProvider writeProvider
+     */
+    public function testWrite($data)
     {
         $resource = fopen('php://memory', 'w+');
-        $iterator = new \ArrayIterator($this->values);
 
         $stream = new CsvOutputStream($resource);
-        $stream->write($iterator);
+        $stream->write($data);
 
         fseek($resource, 0);
         $result = fread($resource, 1024);
@@ -43,10 +53,9 @@ CSV;
     public function testWriteOptions()
     {
         $resource = fopen('php://memory', 'w+');
-        $iterator = new \ArrayIterator($this->values);
 
         $stream = new CsvOutputStream($resource, null, ";", "'");
-        $stream->write($iterator);
+        $stream->write($this->values);
 
         fseek($resource, 0);
         $result = fread($resource, 1024);
@@ -77,10 +86,9 @@ CSV;
     public function testWriteHeaders()
     {
         $resource = fopen('php://memory', 'w+');
-        $iterator = new \ArrayIterator($this->values);
 
         $stream = new CsvOutputStream($resource, ['order', 'lorem', 'color', 'integer']);
-        $stream->write($iterator);
+        $stream->write($this->values);
 
         fseek($resource, 0);
         $result = fread($resource, 1024);
@@ -121,12 +129,11 @@ CSV;
             'hello world',
             ['three', 'qux,\'wuz;dux', 'blue', -20]
         ];
-        $iterator = new \ArrayIterator($values);
 
         $resource = fopen('php://memory', 'w+');
 
         $stream = new CsvOutputStream($resource);
-        @$stream->write($iterator);
+        @$stream->write($values);
 
         $this->assertLastError(E_USER_WARNING, "Unable to write to element to CSV stream; " .
             "expect array, string given");

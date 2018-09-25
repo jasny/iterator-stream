@@ -23,10 +23,12 @@ Usage
 $handler = fopen('path/to/some/file.txt');
 $stream = new LineOutputStream($handler);
 
-$iterator = new \ArrayIterator(['hello, 'sweet', 'world']);
+$iterable = ['hello, 'sweet', 'world'];
 
 $stream->write($iterator);
 ```
+
+The `write()` takes an array or `Traversable` object (not just `Iterators`). 
 
 All stream objects take a stream resource as first parameter of the constructor.
 

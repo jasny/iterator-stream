@@ -19,6 +19,10 @@ class LineOutputStreamTest extends TestCase
                 "hello world\nlovely day\n"
             ],
             [
+                new \ArrayIterator(['hello world', 'lovely day']),
+                "hello world\nlovely day\n"
+            ],
+            [
                 ['one', null, 3, true, false],
                 "one\n\n3\n1\n\n"
             ],
@@ -32,13 +36,12 @@ class LineOutputStreamTest extends TestCase
     /**
      * @dataProvider writeProvider
      */
-    public function testWrite(array $values, string $expected)
+    public function testWrite($values, $expected)
     {
         $resource = fopen('php://memory', 'w+');
-        $iterator = new \ArrayIterator($values);
 
         $stream = new LineOutputStream($resource);
-        $stream->write($iterator);
+        $stream->write($values);
 
         fseek($resource, 0);
         $result = fread($resource, 1024);
@@ -49,10 +52,10 @@ class LineOutputStreamTest extends TestCase
     public function testWriteEndline()
     {
         $resource = fopen('php://memory', 'w+');
-        $iterator = new \ArrayIterator(['hello world', 'lovely day']);
+        $values = ['hello world', 'lovely day'];
 
         $stream = new LineOutputStream($resource, '.');
-        $stream->write($iterator);
+        $stream->write($values);
 
         fseek($resource, 0);
         $result = fread($resource, 1024);

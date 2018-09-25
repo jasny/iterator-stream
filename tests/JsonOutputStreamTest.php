@@ -14,7 +14,7 @@ class JsonOutputStreamTest extends TestCase
 {
     use TestHelper;
 
-    public function testWrite()
+    public function writeProvider()
     {
         $values = [
             ['one' => 'uno', 'two' => 'dos'],
@@ -22,18 +22,28 @@ class JsonOutputStreamTest extends TestCase
             null,
             42
         ];
-        $iterator = new \ArrayIterator($values);
 
+        return [
+            [$values, json_encode($values)],
+            [new \ArrayIterator($values), json_encode($values)]
+        ];
+    }
+
+    /**
+     * @dataProvider writeProvider
+     */
+    public function testWrite($data, $expected)
+    {
         $resource = fopen('php://memory', 'w+');
 
         $stream = new JsonOutputStream($resource);
-        $stream->write($iterator);
+        $stream->write($data);
 
         fseek($resource, 0);
         $result = fread($resource, 1024);
 
         $this->assertJson($result);
-        $this->assertJsonStringEqualsJsonString(json_encode($values), $result);
+        $this->assertJsonStringEqualsJsonString($expected, $result);
     }
 
     public function testWriteOptions()
@@ -42,12 +52,11 @@ class JsonOutputStreamTest extends TestCase
             ['one' => 'uno', 'two' => 'dos'],
             (object)['name' => 'arnold', 'nick' => 'jasny']
         ];
-        $iterator = new \ArrayIterator($values);
 
         $resource = fopen('php://memory', 'w+');
 
         $stream = new JsonOutputStream($resource, JSON_PRETTY_PRINT);
-        $stream->write($iterator);
+        $stream->write($values);
 
         fseek($resource, 0);
         $result = fread($resource, 1024);
@@ -64,12 +73,11 @@ class JsonOutputStreamTest extends TestCase
             ['one' => 'uno', 'two' => 'dos'],
             (object)['name' => 'arnold', 'nick' => 'jasny']
         ];
-        $iterator = new \ArrayIterator($values);
 
         $resource = fopen('php://memory', 'w+');
 
         $stream = new JsonOutputStream($resource, JsonOutputStream::OUTPUT_LINES);
-        $stream->write($iterator);
+        $stream->write($values);
 
         fseek($resource, 0);
         $result = fread($resource, 1024);
@@ -86,12 +94,11 @@ class JsonOutputStreamTest extends TestCase
             fopen('data://text/plain,hello', 'r'),
             (object)['name' => 'arnold', 'nick' => 'jasny']
         ];
-        $iterator = new \ArrayIterator($values);
 
         $resource = fopen('php://memory', 'w+');
 
         $stream = new JsonOutputStream($resource);
-        @$stream->write($iterator);
+        @$stream->write($values);
 
         $this->assertLastError(E_USER_WARNING, "JSON encode failed; Type is not supported");
 

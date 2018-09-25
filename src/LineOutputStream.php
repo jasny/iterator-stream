@@ -17,10 +17,10 @@ class LineOutputStream extends AbstractOutputStream
     /**
      * Class constructor.
      *
-     * @param resource $stream
-     * @param string   $endline
+     * @param resource|string|null $stream
+     * @param string               $endline
      */
-    public function __construct($stream, string $endline = "\n")
+    public function __construct($stream = null, string $endline = "\n")
     {
         parent::__construct($stream);
 

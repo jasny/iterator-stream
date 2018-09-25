@@ -25,4 +25,12 @@ interface OutputStreamInterface
      * @throws \LogicException if stream is already detached
      */
     public function detach();
+
+    /**
+     * Create a new copy of the output stream.
+     *
+     * @param resource|string $stream
+     * @return static
+     */
+    public function withStream($stream);
 }

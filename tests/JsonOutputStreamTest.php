@@ -110,4 +110,30 @@ class JsonOutputStreamTest extends TestCase
         $this->assertJson($result);
         $this->assertJsonStringEqualsJsonString($expected, $result);
     }
+
+
+    public function testWithStream()
+    {
+        $prototype = new JsonOutputStream();
+
+        $resource = fopen('php://memory', 'w+');
+        $stream = $prototype->withStream($resource);
+
+        $this->assertInstanceOf(JsonOutputStream::class, $stream);
+        $this->assertNotSame($prototype, $stream);
+        $this->assertAttributeSame($resource, 'stream', $stream);
+    }
+
+    /**
+     * @depends testWithStream
+     */
+    public function testWithStreamOptions()
+    {
+        $prototype = new JsonOutputStream(null, \JSON_PRETTY_PRINT);
+
+        $resource = fopen('php://memory', 'w+');
+        $stream = $prototype->withStream($resource);
+
+        $this->assertAttributeEquals(JSON_PRETTY_PRINT, 'options', $stream);
+    }
 }

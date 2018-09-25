@@ -28,10 +28,10 @@ class JsonOutputStream extends AbstractOutputStream
     /**
      * Class constructor.
      *
-     * @param resource $stream
-     * @param int      $options  Binary set of JSON_* options and optionally JsonOutputStream::OUTPUT_LINES
+     * @param resource|string|null $stream
+     * @param int                  $options  Binary set of JSON_* options and optionally JsonOutputStream::OUTPUT_LINES
      */
-    public function __construct($stream, int $options = 0)
+    public function __construct($stream = null, int $options = 0)
     {
         parent::__construct($stream);
 

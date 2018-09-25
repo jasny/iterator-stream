@@ -48,7 +48,22 @@ $handler = $psr7stream->detach();
 $stream = new LineOutputStream($handler);
 ```
 
-Streams
+### Prototype pattern
+
+Iterator output streams support the prototype design pattern. They may be created detached of a stream resource.
+The `withStream` creates a clone of the output stream with the given resource attached.
+
+```php
+$prototype = new JsonOutputStream();
+
+$stream = $prototype->withStream($resource);
+$stream->write($iterable);
+``` 
+
+Prototyping makes the library easier to use with dependency inversion in SOLID applictions. 
+
+
+Output streams
 ---
 
 * [Line](#line)
@@ -60,7 +75,7 @@ Streams
 Write to a stream line by line.
 
 ```php
-LineOutputStream(resource $handler, string $endLine = "\n")
+LineOutputStream(resource|string $stream, string $endLine = "\n")
 ```
 
 ### CSV
@@ -69,26 +84,30 @@ Write to a stream as CSV. See [`fputcsv()`](https://php.net/fputcsv).
 
 ```php
 CsvOutputStream(
-    resource $stream,
-    array|null $headers = ['name', 'age', 'email'],
+    resource|string $stream,
     string $delimiter = ',',
     string $enclosure = '"',
     string $escapeChar = '\\'
 )
 ```
 
-Headers may be specified, which will be written as first line. 
+The `write()` method optionally takes headers as a seconds argument. These are written as first line. 
 
-Each element of the iterator MUST be an array with a fixed number of values. Keys are ignored, if the elements are
-associative arrays or objects, use the [`ProjectionIterator`](https://github.com/jasny/iterator#projectioniterator) from
-the jasny\iterator library.
+```php
+$output = new CsvOutputStream($stream);
+$output->write($data, ['name', 'age', 'email']);
+```
+
+Each element of the iterable MUST be an array with a fixed number of values. Keys are ignored, if the elements are
+associative arrays or objects, use [`iterable_project`](https://github.com/jasny/iterable-functions#iterable_project)
+from `jasny\iterable-functions`.
 
 ### JSON
 
 Write to a stream as JSON array. See [`json_encode`](https://php.net/json_encode).
 
 ```php
-JsonOutputStream(resource $handler, int $options = 0)
+JsonOutputStream(resource|string $stream, int $options = 0)
 ```
 
 Options may be provided as binary set using the `JSON_*` constants.
@@ -97,5 +116,5 @@ You can add `JsonOutputStream::OUTPUT_LINES` as option, in which case each eleme
 the complete output into a JSON array. 
 
 ```php
-$stream = new JsonOutputStream($handler, \JSON_PRETTY_PRINT | JsonOutputStream::OUTPUT_LINES);
+$output = new JsonOutputStream($stream, \JSON_PRETTY_PRINT | JsonOutputStream::OUTPUT_LINES);
 ```

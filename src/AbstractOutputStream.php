@@ -20,11 +20,11 @@ abstract class AbstractOutputStream implements OutputStreamInterface
     /**
      * AbstractOutputStream constructor.
      *
-     * @param resource $stream
+     * @param resource|string|null $stream
      */
     public function __construct($stream)
     {
-        $this->stream = $this->initStream($stream);;
+        $this->stream = isset($stream) ? $this->initStream($stream) : null;
     }
 
 
@@ -151,7 +151,7 @@ abstract class AbstractOutputStream implements OutputStreamInterface
 
 
     /**
-     * Detach the stream.
+     * Detach the stream resource.
      * The object is no longer usable.
      *
      * @return resource
@@ -165,5 +165,19 @@ abstract class AbstractOutputStream implements OutputStreamInterface
         $this->stream = null;
 
         return $stream;
+    }
+
+    /**
+     * Create a new copy of the output stream.
+     *
+     * @param resource|string $stream
+     * @return static
+     */
+    public function withStream($stream): self
+    {
+        $clone = clone $this;
+        $clone->stream = $clone->initStream($stream);
+
+        return $clone;
     }
 }

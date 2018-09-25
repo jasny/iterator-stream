@@ -62,4 +62,17 @@ class LineOutputStreamTest extends TestCase
 
         $this->assertEquals("hello world.lovely day.", $result);
     }
+
+
+    public function testWithStream()
+    {
+        $prototype = new LineOutputStream();
+
+        $resource = fopen('php://memory', 'w+');
+        $stream = $prototype->withStream($resource);
+
+        $this->assertInstanceOf(LineOutputStream::class, $stream);
+        $this->assertNotSame($prototype, $stream);
+        $this->assertAttributeSame($resource, 'stream', $stream);
+    }
 }

@@ -54,7 +54,7 @@ CSV;
     {
         $resource = fopen('php://memory', 'w+');
 
-        $stream = new CsvOutputStream($resource, null, ";", "'");
+        $stream = new CsvOutputStream($resource, ";", "'");
         $stream->write($this->values);
 
         fseek($resource, 0);
@@ -87,8 +87,8 @@ CSV;
     {
         $resource = fopen('php://memory', 'w+');
 
-        $stream = new CsvOutputStream($resource, ['order', 'lorem', 'color', 'integer']);
-        $stream->write($this->values);
+        $stream = new CsvOutputStream($resource);
+        $stream->write($this->values, ['order', 'lorem', 'color', 'integer']);
 
         fseek($resource, 0);
         $result = fread($resource, 1024);
@@ -108,8 +108,8 @@ CSV;
     {
         $resource = fopen('php://memory', 'w+');
 
-        $stream = new CsvOutputStream($resource, ['order', 'lorem', 'color', 'integer']);
-        $stream->write(new \EmptyIterator());
+        $stream = new CsvOutputStream($resource);
+        $stream->write(new \EmptyIterator(), ['order', 'lorem', 'color', 'integer']);
 
         fseek($resource, 0);
         $result = fread($resource, 1024);
@@ -151,4 +151,30 @@ CSV;
         $this->assertEquals($expected, $result);
     }
 
+
+    public function testWithStream()
+    {
+        $prototype = new CsvOutputStream();
+
+        $resource = fopen('php://memory', 'w+');
+        $stream = $prototype->withStream($resource);
+
+        $this->assertInstanceOf(CsvOutputStream::class, $stream);
+        $this->assertNotSame($prototype, $stream);
+        $this->assertAttributeSame($resource, 'stream', $stream);
+    }
+
+    /**
+     * @depends testWithStream
+     */
+    public function testWithStreamOptions()
+    {
+        $prototype = new CsvOutputStream(null, ';', ',');
+
+        $resource = fopen('php://memory', 'w+');
+        $stream = $prototype->withStream($resource);
+
+        $this->assertAttributeEquals(';', 'delimiter', $stream);
+        $this->assertAttributeEquals(',', 'enclosure', $stream);
+    }
 }

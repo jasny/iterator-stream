@@ -38,8 +38,12 @@ abstract class AbstractOutputStream implements OutputStreamInterface
      */
     protected function initStream($stream)
     {
-        expect_type($stream, ['stream resource', 'string'], \TypeError::class,
-            "Expected stream resource or uri (string), %s given");
+        expect_type(
+            $stream,
+            ['stream resource', 'string'],
+            \TypeError::class,
+            "Expected stream resource or uri (string), %s given"
+        );
 
         if (is_string($stream)) {
             $stream = $this->openStream($stream);
